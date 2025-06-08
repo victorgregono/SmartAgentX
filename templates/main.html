@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAgentX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+        .main-content {
+            flex: 1;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-graph-up me-2"></i>
+                SmartAgentX
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-robot me-3"></i>
+                SmartAgentX
+            </h1>
+            <p class="lead mb-0">
+                Faça perguntas sobre seus dados CSV usando linguagem natural com IA
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    {% if response %}
+                    <!-- Response Card -->
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                Resposta da IA
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="bg-light p-3 rounded">
+                                <pre class="mb-0">{{ response }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <!-- Query Form Card -->
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Faça sua Pergunta
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="/query" method="POST">
+                                <div class="mb-4">
+                                    <label for="model" class="form-label">
+                                        <i class="bi bi-cpu me-2"></i>
+                                        Selecione o Modelo de IA:
+                                    </label>
+                                    <select name="model" id="model" class="form-select" required>
+                                        <option value="" disabled selected>Escolha um modelo...</option>
+                                        {% for model in models %}
+                                        <option value="{{ model }}">{{ model }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="question" class="form-label">
+                                        <i class="bi bi-question-circle me-2"></i>
+                                        Sua Pergunta:
+                                    </label>
+                                    <input type="text" 
+                                           id="question" 
+                                           name="question" 
+                                           class="form-control" 
+                                           placeholder="ex: Qual é o faturamento total? Quantos registros existem?"
+                                           required>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                        <i class="bi bi-send me-2"></i>
+                                        <span id="submitText">Enviar Consulta</span>
+                                        <span id="loadingSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Available Files Info -->
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                Arquivos CSV Disponíveis ({{ files|length }} arquivo{% if files|length != 1 %}s{% endif %})
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for file in files %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-file-earmark-text text-primary me-2"></i><span>{{ file }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>SmartAgentX</h5>
+                    <p class="mb-2">
+                        Uma ferramenta inteligente para analisar dados CSV usando consultas em linguagem natural.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small>&copy; 2025 SmartAgentX. Construído com Flask & Bootstrap</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[action="/query"]');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            if (form && submitBtn) {
+                form.addEventListener('submit', function() {
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitText.textContent = 'Processando...';
+                    loadingSpinner.style.display = 'inline-block';
+                    document.body.style.cursor = 'wait';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
